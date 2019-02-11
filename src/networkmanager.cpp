@@ -31,11 +31,7 @@ void NetworkManager::connectVpn(QString connectionId, const QMap<QString, QStrin
     GError *error = NULL;
 
     // Deactivate connection if active
-    NMActiveConnection *activeConnection = getActiveConnectionById(connectionId);
-    if (activeConnection) {
-        g_print("Deactivating connection...\n");
-        nm_client_deactivate_connection(nmClient_, activeConnection, NULL, &error);
-    }
+    disconnectVpn(connectionId);
 
     // Delete connection if exists
     NMRemoteConnection *remoteConnection = getConnectionById(connectionId);
@@ -87,9 +83,21 @@ void NetworkManager::connectVpn(QString connectionId, const QMap<QString, QStrin
                   NULL);
 
     NMDevice* device;
-    activeConnection = getDefaultActiveConnection(&device);
+    getDefaultActiveConnection(&device);
 
     nm_client_add_and_activate_connection_async(nmClient_, connection, device, NULL, NULL, added_cb, NULL);
+}
+
+void NetworkManager::disconnectVpn(QString connectionId)
+{
+    GError *error = NULL;
+
+    // Deactivate connection if active
+    NMActiveConnection *activeConnection = getActiveConnectionById(connectionId);
+    if (activeConnection) {
+        g_print("Deactivating connection...\n");
+        nm_client_deactivate_connection(nmClient_, activeConnection, NULL, &error);
+    }
 }
 
 QString NetworkManager::getVpnParam(QString connectionId, QString param)

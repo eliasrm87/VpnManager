@@ -27,6 +27,7 @@ class NetworkManager : public QObject
 public:
     NetworkManager(QObject *parent = Q_NULLPTR);
     void connectVpn(QString connectionId, const QMap<QString, QString> &params);
+    void disconnectVpn(QString connectionId);
     QString getVpnParam(QString connectionId, QString param);
     bool isActiveConnection(QString connectionId);
 

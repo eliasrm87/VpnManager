@@ -38,7 +38,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     wgtLstCountries_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     wgtLstServers_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    btnConnect_->setEnabled(false);
 
     lytServerForm_->addRow("Status", lblConnectionStatus_);
     lytServerForm_->addRow("Country", wgtLstCountries_);
@@ -77,8 +76,10 @@ void MainWindow::refreshStatus()
 {
     if (networkManager_->isActiveConnection(connectionName_)) {
         lblConnectionStatus_->setText("Connected");
+        btnConnect_->setText("Disconnect");
     } else {
         lblConnectionStatus_->setText("Disconnected");
+        btnConnect_->setText("Connect");
     }
 }
 
@@ -123,8 +124,6 @@ void MainWindow::onCountryClicked(const QString &text)
 {
     IpvContry* country = countries_->value(text);
 
-    btnConnect_->setEnabled(false);
-
     while (wgtLstServers_->count()) {
         QListWidgetItem* item = wgtLstServers_->takeItem(0);
         delete(item);
@@ -144,12 +143,30 @@ void MainWindow::onServerClicked(QListWidgetItem *item)
 {
     Q_UNUSED(item);
 
-    btnConnect_->setEnabled(true);
 }
 
 void MainWindow::onConnectClicked(bool checked)
 {
     Q_UNUSED(checked);
+    if (networkManager_->isActiveConnection(connectionName_)) {
+        disconnectVpn();
+    } else {
+        connectVpn();
+    }
+}
+
+void MainWindow::onSettingsAccpeted()
+{
+    loadSettings();
+}
+
+void MainWindow::loadSettings()
+{
+    connectionName_ = settings_->value("ConnectionName", "IPVanish").toString();
+}
+
+void MainWindow::connectVpn()
+{
     if (!wgtLstServers_->selectedItems().count()) return;
 
     QListWidgetItem* selectedItem = wgtLstServers_->selectedItems()[0];
@@ -172,15 +189,13 @@ void MainWindow::onConnectClicked(bool checked)
     connectionParams.insert(NMQ_VPN_TUN_IPV6,        settings_->value("TunIpv6").toString().toStdString().c_str());
     connectionParams.insert(NMQ_VPN_USERNAME,        settings_->value("UserName").toString().toStdString().c_str());
     connectionParams.insert(NMQ_VPN_PASSWORD,        settings_->value("Password").toString().toStdString().c_str());
+
     networkManager_->connectVpn(connectionName_, connectionParams);
+    btnConnect_->setText("Disconnect");
 }
 
-void MainWindow::onSettingsAccpeted()
+void MainWindow::disconnectVpn()
 {
-    loadSettings();
-}
-
-void MainWindow::loadSettings()
-{
-    connectionName_ = settings_->value("ConnectionName", "IPVanish").toString();
+    networkManager_->disconnectVpn(connectionName_);
+    btnConnect_->setText("Connect");
 }

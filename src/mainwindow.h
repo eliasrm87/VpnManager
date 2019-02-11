@@ -33,6 +33,8 @@ private slots:
 
 private:
     void loadSettings();
+    void connectVpn();
+    void disconnectVpn();
 
 private:
     QSettings* settings_;
