@@ -37,7 +37,8 @@ SOURCES += \
         providers/ipvanish/ipvcountry.cpp \
         wgtserver.cpp \
         networkmanager.cpp \
-        settingsdialog.cpp
+        settingsdialog.cpp \
+        providers/abstractserver.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -46,6 +47,7 @@ HEADERS += \
         providers/ipvanish/ipvserver.h \
         wgtserver.h \
         networkmanager.h \
-        settingsdialog.h
+        settingsdialog.h \
+        providers/abstractserver.h
 
 RESOURCES +=

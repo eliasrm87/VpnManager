@@ -1,10 +1,9 @@
-#ifndef VPNSERVER_H
-#define VPNSERVER_H
+#ifndef IPVSERVER_H
+#define IPVSERVER_H
 
-#include <QObject>
-#include <QJsonObject>
+#include <providers/abstractserver.h>
 
-class IpvServer : public QObject
+class IpvServer : public AbstractServer
 {
     Q_OBJECT
 public:
@@ -12,12 +11,6 @@ public:
     QString hostName();
     QString city();
     int capacity();
-    QJsonObject data() const;
-    void setData(const QJsonObject &data);
-
-private:
-    QJsonObject data_;
-    QJsonObject properties_;
 };
 
-#endif // VPNSERVER_H
+#endif // IPVSERVER_H

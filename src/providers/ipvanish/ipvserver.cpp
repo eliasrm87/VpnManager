@@ -1,9 +1,9 @@
 #include "ipvserver.h"
 
 IpvServer::IpvServer(const QJsonObject &data, QObject *parent) :
-    QObject(parent), data_(data)
+    AbstractServer(data, parent)
 {
-    properties_ = data_.value("properties").toObject();
+
 }
 
 QString IpvServer::hostName()
@@ -19,14 +19,4 @@ QString IpvServer::city()
 int IpvServer::capacity()
 {
     return properties_.value("capacity").toInt();
-}
-
-QJsonObject IpvServer::data() const
-{
-    return data_;
-}
-
-void IpvServer::setData(const QJsonObject &data)
-{
-    data_ = data;
 }
