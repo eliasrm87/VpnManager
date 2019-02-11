@@ -8,7 +8,7 @@ QT       += core gui network svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = src
+TARGET = vpnManager
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -24,6 +24,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += link_pkgconfig
 PKGCONFIG += libnm
+
+target.files = vpnManager
+target.path  = /usr/local/bin/
+INSTALLS += target
 
 SOURCES += \
         main.cpp \
