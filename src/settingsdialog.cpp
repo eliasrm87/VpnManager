@@ -12,6 +12,7 @@ SettingsDialog::SettingsDialog(QSettings *settings, QWidget *parent, Qt::WindowF
     lneConnectionName_ = new QLineEdit(this);
     cmbAuth_           = new QComboBox(this);
     lneCa_             = new QLineEdit(this);
+    lneTa_             = new QLineEdit(this);
     cmbCipher_         = new QComboBox(this);
     cmbCompLZO_        = new QComboBox(this);
     cmbConnectionType_ = new QComboBox(this);
@@ -45,6 +46,7 @@ SettingsDialog::SettingsDialog(QSettings *settings, QWidget *parent, Qt::WindowF
     lytServerForm_->addRow("Connection name", lneConnectionName_);
     lytServerForm_->addRow("Auth", cmbAuth_);
     lytServerForm_->addRow("CA path", lneCa_);
+    lytServerForm_->addRow("TA path", lneTa_);
     lytServerForm_->addRow("Cipher", cmbCipher_);
     lytServerForm_->addRow("Use LZO compression", cmbCompLZO_);
     lytServerForm_->addRow("Connection type", cmbConnectionType_);
@@ -138,6 +140,7 @@ void SettingsDialog::loadSettings()
     lneConnectionName_->setText(settings_->value("ConnectionName", "IPVanish").toString());
     cmbAuth_->setCurrentText(settings_->value("Auth", "SHA256").toString());
     lneCa_->setText(settings_->value("CA", "").toString());
+    lneTa_->setText(settings_->value("TA", "").toString());
     cmbCipher_->setCurrentText(settings_->value("Cipher", "AES-256-CBC").toString());
     cmbCompLZO_->setCurrentText(settings_->value("CompLZO", "yes").toString());
     cmbConnectionType_->setCurrentText(settings_->value("ConnectionType", "password").toString());
@@ -157,6 +160,7 @@ void SettingsDialog::saveSettings()
     settings_->setValue("ConnectionName", lneConnectionName_->text());
     settings_->setValue("Auth", cmbAuth_->itemText(cmbAuth_->currentIndex()));
     settings_->setValue("CA", lneCa_->text());
+    settings_->setValue("TA", lneTa_->text());
     settings_->setValue("Cipher", cmbCipher_->itemText(cmbCipher_->currentIndex()));
     settings_->setValue("CompLZO", cmbCompLZO_->itemText(cmbCompLZO_->currentIndex()));
     settings_->setValue("ConnectionType", cmbConnectionType_->itemText(cmbConnectionType_->currentIndex()));

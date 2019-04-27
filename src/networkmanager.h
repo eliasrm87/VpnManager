@@ -8,6 +8,8 @@
 
 #define NMQ_VPN_AUTH            "auth"
 #define NMQ_VPN_CA              "ca"
+#define NMQ_VPN_TA              "ta"
+#define NMQ_VPN_TADIR           "ta-dir"
 #define NMQ_VPN_CIPHER          "cipher"
 #define NMQ_VPN_COMP_LZO        "comp-lzo"
 #define NMQ_VPN_CONNECTION_TYPE "connection-type"

@@ -44,6 +44,7 @@ private:
     QLineEdit *lneConnectionName_;
     QComboBox *cmbAuth_;
     QLineEdit *lneCa_;
+    QLineEdit *lneTa_;
     QComboBox *cmbCipher_;
     QComboBox *cmbCompLZO_;
     QComboBox *cmbConnectionType_;
