@@ -39,6 +39,8 @@ SOURCES += \
         providers/country.cpp \
         providers/ipvanish/ipvanish.cpp \
         providers/ipvanish/ipvserver.cpp \
+        providers/nordvpn/nordvpn.cpp \
+        providers/nordvpn/nvpnserver.cpp \
         providers/provider.cpp
 
 HEADERS += \
@@ -50,6 +52,8 @@ HEADERS += \
         providers/country.h \
         providers/ipvanish/ipvanish.h \
         providers/ipvanish/ipvserver.h \
+        providers/nordvpn/nordvpn.h \
+        providers/nordvpn/nvpnserver.h \
         providers/provider.h
 
 RESOURCES +=

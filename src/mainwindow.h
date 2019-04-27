@@ -11,6 +11,7 @@
 #include <QSettings>
 #include <QTimer>
 #include "providers/ipvanish/ipvanish.h"
+#include "providers/nordvpn/nordvpn.h"
 #include "networkmanager.h"
 #include "settingsdialog.h"
 
@@ -24,8 +25,9 @@ public:
 private slots:
     void refreshStatus();
     void onSettingsTriggered(bool checked);
-    void onNewCountry(IpvContry* country);
+    void onNewCountry(Country* country);
     void onLoadFinish();
+    void onProviderClicked(const QString &text);
     void onCountryClicked(const QString &text);
     void onServerClicked(QListWidgetItem* item);
     void onConnectClicked(bool checked = false);
@@ -46,11 +48,12 @@ private:
     QFormLayout* lytServerForm_;
     QWidget* wgtServerForm_;
     QLabel* lblConnectionStatus_;
+    QComboBox* wgtLstProvider_;
     QComboBox* wgtLstCountries_;
     QListWidget* wgtLstServers_;
     QPushButton* btnConnect_;
-    IpVanish* ipvanish_;
-    QMap<QString, IpvContry*>* countries_;
+    Provider* provider_;
+    QMap<QString, Country*>* countries_;
     NetworkManager* networkManager_;
     QTimer refreshTimer_;
     QString connectionName_;

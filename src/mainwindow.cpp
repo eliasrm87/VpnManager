@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     settings_  = new QSettings("eliasrm", "vpnManager");
-    countries_ = new QMap<QString, IpvContry*>();
+    countries_ = new QMap<QString, Country*>();
 
     setWindowTitle("VPN Manager");
     setMinimumSize(800, 600);
@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     wgtServerForm_       = new QWidget(this);
     lytServerForm_       = new QFormLayout(this);
     lblConnectionStatus_ = new QLabel(this);
+    wgtLstProvider_      = new QComboBox(this);
     wgtLstCountries_     = new QComboBox(this);
     wgtLstServers_       = new QListWidget(this);
     btnConnect_          = new QPushButton("Connect", this);
@@ -37,21 +38,24 @@ MainWindow::MainWindow(QWidget *parent)
     mnuEdit_->addAction(actSttings_);
 
     wgtLstCountries_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    wgtLstProvider_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     wgtLstServers_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     lytServerForm_->addRow("Status", lblConnectionStatus_);
+    lytServerForm_->addRow("Provider", wgtLstProvider_);
     lytServerForm_->addRow("Country", wgtLstCountries_);
 
     layout_->addWidget(wgtServerForm_,  0, 0, 1, 3);
     layout_->addWidget(wgtLstServers_ , 1, 0, 1, 3);
     layout_->addWidget(btnConnect_,     2, 0, 1, 1);
 
-    ipvanish_ = new IpVanish(this);
+    provider_ = NULL;
+    wgtLstProvider_->addItem("IpVanish");
+    wgtLstProvider_->addItem("NordVPN");
+    QString provider = settings_->value("Provider", "IpVanish").toString();
+    wgtLstProvider_->setCurrentIndex(wgtLstProvider_->findText(provider));
+    onProviderClicked(provider);
 
-    connect(ipvanish_,        SIGNAL(newCountry(IpvContry*)),
-            this,             SLOT(onNewCountry(IpvContry*)));
-    connect(ipvanish_,        SIGNAL(loadFinish()),
-            this,             SLOT(onLoadFinish()));
     connect(wgtLstCountries_, SIGNAL(currentIndexChanged(const QString&)),
             this,             SLOT(onCountryClicked(const QString&)));
     connect(wgtLstServers_,   SIGNAL(itemClicked(QListWidgetItem*)),
@@ -64,9 +68,10 @@ MainWindow::MainWindow(QWidget *parent)
             this,             SLOT(onSettingsAccpeted()));
     connect(&refreshTimer_,   SIGNAL(timeout()),
             this,             SLOT(refreshStatus()));
+    connect(wgtLstProvider_,  SIGNAL(currentIndexChanged(const QString&)),
+            this,             SLOT(onProviderClicked(const QString&)));
 
-    loadSettings();
-    ipvanish_->load();
+
     refreshStatus();
 
     refreshTimer_.start(5000);
@@ -90,14 +95,14 @@ void MainWindow::onSettingsTriggered(bool checked)
     dlgSettings_->show();
 }
 
-void MainWindow::onNewCountry(IpvContry *country)
+void MainWindow::onNewCountry(Country *country)
 {
     countries_->insert(country->country(), country);
 }
 
 void MainWindow::onLoadFinish()
 {
-    QMapIterator<QString, IpvContry*> i(*countries_);
+    QMapIterator<QString, Country*> i(*countries_);
     while (i.hasNext()) {
         i.next();
         wgtLstCountries_->addItem(i.value()->country());
@@ -105,7 +110,7 @@ void MainWindow::onLoadFinish()
 
     // Select currently configured server
     QString hostName = networkManager_->getVpnParam(connectionName_, "remote");
-    QString serverCountry = ipvanish_->getServerCountry(hostName);
+    QString serverCountry = provider_->getServerCountry(hostName);
     if (serverCountry.length()) {
         wgtLstCountries_->setCurrentText(serverCountry);
         for(int j = 0; j < wgtLstServers_->count(); ++j) {
@@ -120,9 +125,41 @@ void MainWindow::onLoadFinish()
     }
 }
 
+void MainWindow::onProviderClicked(const QString &text)
+{
+    qDebug() << "onProviderClicked" << text;
+    settings_->setValue("Provider", text);
+    if (provider_ != NULL) {
+        delete provider_;
+        provider_ = NULL;
+        countries_->clear();
+        wgtLstCountries_->clear();
+        wgtLstServers_->clear();
+    }
+    if (text == "IpVanish") {
+        provider_ = new IpVanish(this);
+    } else if (text == "NordVPN") {
+        provider_ = new NordVPN(this);
+    } else {
+        return;
+    }
+
+    connect(provider_,        SIGNAL(newCountry(Country*)),
+            this,             SLOT(onNewCountry(Country*)));
+    connect(provider_,        SIGNAL(loadFinish()),
+            this,             SLOT(onLoadFinish()));
+
+    loadSettings();
+    provider_->load();
+}
+
 void MainWindow::onCountryClicked(const QString &text)
 {
-    IpvContry* country = countries_->value(text);
+    if (!provider_) {
+        return;
+    }
+
+    Country* country = countries_->value(text);
 
     while (wgtLstServers_->count()) {
         QListWidgetItem* item = wgtLstServers_->takeItem(0);
@@ -162,7 +199,7 @@ void MainWindow::onSettingsAccpeted()
 
 void MainWindow::loadSettings()
 {
-    connectionName_ = settings_->value("ConnectionName", "IPVanish").toString();
+    connectionName_ = settings_->value("ConnectionName", provider_->getName()).toString();
 }
 
 void MainWindow::connectVpn()
@@ -189,6 +226,15 @@ void MainWindow::connectVpn()
     connectionParams.insert(NMQ_VPN_TUN_IPV6,        settings_->value("TunIpv6").toString().toStdString().c_str());
     connectionParams.insert(NMQ_VPN_USERNAME,        settings_->value("UserName").toString().toStdString().c_str());
     connectionParams.insert(NMQ_VPN_PASSWORD,        settings_->value("Password").toString().toStdString().c_str());
+
+    QString ta = settings_->value("TA", "").toString();
+    if (ta != "") {
+        connectionParams.insert(NMQ_VPN_TA, settings_->value("TA").toString().toStdString().c_str());
+        connectionParams.insert(NMQ_VPN_TADIR, "1");
+    } else {
+        connectionParams.insert(NMQ_VPN_TADIR, "0");
+    }
+
 
     networkManager_->connectVpn(connectionName_, connectionParams);
     btnConnect_->setText("Disconnect");
