@@ -32,22 +32,24 @@ INSTALLS += target
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-        providers/ipvanish/ipvanish.cpp \
-        providers/ipvanish/ipvserver.cpp \
-        providers/ipvanish/ipvcountry.cpp \
         wgtserver.cpp \
         networkmanager.cpp \
         settingsdialog.cpp \
-        providers/abstractserver.cpp
+        providers/abstractserver.cpp \
+        providers/country.cpp \
+        providers/ipvanish/ipvanish.cpp \
+        providers/ipvanish/ipvserver.cpp \
+        providers/provider.cpp
 
 HEADERS += \
         mainwindow.h \
-        providers/ipvanish/ipvanish.h \
-        providers/ipvanish/ipvcountry.h \
-        providers/ipvanish/ipvserver.h \
         wgtserver.h \
         networkmanager.h \
         settingsdialog.h \
-        providers/abstractserver.h
+        providers/abstractserver.h \
+        providers/country.h \
+        providers/ipvanish/ipvanish.h \
+        providers/ipvanish/ipvserver.h \
+        providers/provider.h
 
 RESOURCES +=

@@ -1,53 +1,53 @@
-#include "ipvcountry.h"
+#include "country.h"
 
-IpvContry::IpvContry() :
+Country::Country() :
     QObject(), country_("")
 {
 
 }
 
-IpvContry::IpvContry(const QString &country, QObject *parent) :
+Country::Country(const QString &country, QObject *parent) :
     QObject(parent), country_(country)
 {
 
 }
 
-IpvContry::IpvContry(const IpvContry &other) :
+Country::Country(const Country &other) :
     QObject(), country_(other.country_), servers_(other.servers_)
 {
     setParent(other.parent());
 }
 
-QString IpvContry::country() const
+QString Country::country() const
 {
     return country_;
 }
 
-QList<QString> IpvContry::hostNames()
+QList<QString> Country::hostNames()
 {
     return servers_.keys();
 }
 
-int IpvContry::serversCount()
+int Country::serversCount()
 {
     return servers_.count();
 }
 
-void IpvContry::addServer(const QString &hostName, IpvServer *server)
+void Country::addServer(const QString &hostName, AbstractServer *server)
 {
     servers_.insert(hostName, server);
 }
 
-void IpvContry::clearServers()
+void Country::clearServers()
 {
     while (servers_.count()) {
-        IpvServer* vpnServer = servers_.first();
+        AbstractServer* vpnServer = servers_.first();
         servers_.remove(vpnServer->hostName());
         vpnServer->deleteLater();
     }
 }
 
-IpvServer *IpvContry::server(QString hostName)
+AbstractServer *Country::server(QString hostName)
 {
     if (!servers_.contains(hostName)) {
         return nullptr;
